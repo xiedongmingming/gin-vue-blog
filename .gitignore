@@ -24,3 +24,7 @@ node_modules
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+
+gin-blog-admin/package-lock.json
+gin-blog-front/package-lock.json
