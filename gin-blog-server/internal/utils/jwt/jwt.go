@@ -22,6 +22,7 @@ type MyClaims struct {
 }
 
 func GenToken(secret, issuer string, expireHour, userId int, roleIds []int) (string, error) {
+
 	claims := MyClaims{
 		UserId:  userId,
 		RoleIds: roleIds,
@@ -32,18 +33,23 @@ func GenToken(secret, issuer string, expireHour, userId int, roleIds []int) (str
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
 	return token.SignedString([]byte(secret))
+
 }
 
 func ParseToken(secret, token string) (*MyClaims, error) {
-	jwtToken, err := jwt.ParseWithClaims(token, &MyClaims{},
-		func(token *jwt.Token) (interface{}, error) {
-			return []byte(secret), nil
-		})
+
+	jwtToken, err := jwt.ParseWithClaims(token, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secret), nil
+	})
 
 	if err != nil {
+
 		switch vError, ok := err.(*jwt.ValidationError); ok {
+
 		case vError.Errors&jwt.ValidationErrorMalformed != 0:
 			return nil, ErrTokenMalformed
 		case vError.Errors&jwt.ValidationErrorExpired != 0:
@@ -52,7 +58,9 @@ func ParseToken(secret, token string) (*MyClaims, error) {
 			return nil, ErrTokenNotValidYet
 		default:
 			return nil, ErrTokenInvalid
+
 		}
+
 	}
 
 	if claims, ok := jwtToken.Claims.(*MyClaims); ok && jwtToken.Valid {
@@ -60,4 +68,5 @@ func ParseToken(secret, token string) (*MyClaims, error) {
 	}
 
 	return nil, ErrTokenInvalid
+
 }

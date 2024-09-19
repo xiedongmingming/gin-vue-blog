@@ -16,35 +16,43 @@ type FrontHomeVO struct {
 }
 
 func GetFrontStatistics(db *gorm.DB) (data FrontHomeVO, err error) {
+
 	result := db.Model(&Article{}).Where("status = ? AND is_delete = ?", 1, 0).Count(&data.ArticleCount)
+
 	if result.Error != nil {
 		return data, result.Error
 	}
 
 	result = db.Model(&UserAuth{}).Count(&data.UserCount)
+
 	if result.Error != nil {
 		return data, result.Error
 	}
 
 	result = db.Model(&Message{}).Count(&data.MessageCount)
+
 	if result.Error != nil {
 		return data, result.Error
 	}
 
 	result = db.Model(&Category{}).Count(&data.CategoryCount)
+
 	if result.Error != nil {
 		return data, result.Error
 	}
 
 	result = db.Model(&Tag{}).Count(&data.TagCount)
+
 	if result.Error != nil {
 		return data, result.Error
 	}
 
 	data.Config, err = GetConfigMap(db)
+
 	if err != nil {
 		return data, err
 	}
 
 	return data, nil
+
 }

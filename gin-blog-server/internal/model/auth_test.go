@@ -7,6 +7,7 @@ import (
 )
 
 func TestUserAuth(t *testing.T) {
+
 	db, _ := initModelDB()
 
 	// 添加用户认证信息
@@ -17,10 +18,13 @@ func TestUserAuth(t *testing.T) {
 			Nickname: "admin",
 		},
 	}
+
 	db.Create(&userAuth)
 
 	val, err := GetUserAuthInfoById(db, userAuth.ID)
+
 	assert.Nil(t, err)
+
 	assert.Equal(t, userAuth.Username, val.Username)
 	assert.Equal(t, userAuth.Password, val.Password)
 	assert.Equal(t, userAuth.UserInfoId, val.UserInfoId)
@@ -29,6 +33,7 @@ func TestUserAuth(t *testing.T) {
 }
 
 func TestGetMenuListByUserId(t *testing.T) {
+
 	db, _ := initModelDB()
 
 	user := UserAuth{
@@ -60,27 +65,35 @@ func TestGetMenuListByUserId(t *testing.T) {
 	db.Create(&user)
 
 	var val UserAuth
+
 	db.Preload("UserInfo").Preload("Roles").Preload("Roles.Menus").First(&val, user.ID)
 
 	assert.Equal(t, user.Username, val.Username)
 	assert.Equal(t, user.UserInfoId, val.UserInfoId)               // associate create
 	assert.Equal(t, user.UserInfo.Nickname, val.UserInfo.Nickname) // preload UserInfo
-	assert.Len(t, val.Roles, 2)                                    // preload Roles
-	assert.Len(t, val.Roles[0].Menus, 2)                           // preload Roles.Menus
+
+	assert.Len(t, val.Roles, 2)          // preload Roles
+	assert.Len(t, val.Roles[0].Menus, 2) // preload Roles.Menus
 
 	menus, err := GetMenuListByUserId(db, user.ID)
+
 	assert.Nil(t, err)
 	assert.Len(t, menus, 4)
 
 	var count int64
+
 	db.Model(&Menu{}).Count(&count)
+
 	assert.Equal(t, int64(4), count)
 
 	db.Model(&RoleMenu{}).Count(&count)
+
 	assert.Equal(t, int64(4), count)
+
 }
 
 func TestAssociateDelete(t *testing.T) {
+
 	db, _ := initModelDB()
 
 	user := UserAuth{
@@ -100,19 +113,28 @@ func TestAssociateDelete(t *testing.T) {
 	db.Create(&user)
 
 	var val UserAuth
+
 	db.Preload("UserInfo").Preload("Roles").Preload("Roles.Menus").First(&val, user.ID)
 
 	{
+
 		var roleMenus []RoleMenu
+
 		db.Table("role_menu").Where("role_id = ?", user.Roles[0].ID).Find(&roleMenus)
+
 		assert.Len(t, roleMenus, 2)
 
 		var userAuthRole []UserAuthRole
+
 		db.Table("user_auth_role").Where("user_auth_id = ?", user.ID).Find(&userAuthRole)
+
 		assert.Len(t, userAuthRole, 1)
 
 		db.Model(&val).Association("Roles").Unscoped().Clear()
 		db.Table("user_auth_role").Where("user_auth_id = ?", user.ID).Find(&userAuthRole)
+
 		assert.Len(t, userAuthRole, 0)
+
 	}
+
 }

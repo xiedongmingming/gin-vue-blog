@@ -16,6 +16,7 @@ type Message struct {
 }
 
 func GetMessageList(db *gorm.DB, num, size int, nickname string, isReview *bool) (list []Message, total int64, err error) {
+
 	db = db.Model(&Message{})
 
 	if nickname != "" {
@@ -27,21 +28,31 @@ func GetMessageList(db *gorm.DB, num, size int, nickname string, isReview *bool)
 	}
 
 	db.Count(&total)
+
 	result := db.Order("created_at DESC").Scopes(Paginate(num, size)).Find(&list)
+
 	return list, total, result.Error
+
 }
 
 func DeleteMessages(db *gorm.DB, ids []int) (int64, error) {
+
 	result := db.Where("id in ?", ids).Delete(&Message{})
+
 	return result.RowsAffected, result.Error
+
 }
 
 func UpdateMessagesReview(db *gorm.DB, ids []int, isReview bool) (int64, error) {
+
 	result := db.Model(&Message{}).Where("id in ?", ids).Update("is_review", isReview)
+
 	return result.RowsAffected, result.Error
+
 }
 
 func SaveMessage(db *gorm.DB, nickname, avatar, content, address, source string, speed int, isReview bool) (*Message, error) {
+
 	message := Message{
 		Nickname:  nickname,
 		Avatar:    avatar,
@@ -53,5 +64,7 @@ func SaveMessage(db *gorm.DB, nickname, avatar, content, address, source string,
 	}
 
 	result := db.Create(&message)
+
 	return &message, result.Error
+
 }

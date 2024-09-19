@@ -12,14 +12,19 @@ type Page struct {
 }
 
 func GetPageList(db *gorm.DB) ([]Page, int64, error) {
+
 	var pages = make([]Page, 0)
+
 	var total int64
 
 	result := db.Model(&Page{}).Count(&total).Find(&pages)
+
 	return pages, total, result.Error
+
 }
 
 func SaveOrUpdatePage(db *gorm.DB, id int, name, label, cover string) (*Page, error) {
+
 	page := Page{
 		Model: Model{ID: id},
 		Name:  name,
@@ -28,6 +33,7 @@ func SaveOrUpdatePage(db *gorm.DB, id int, name, label, cover string) (*Page, er
 	}
 
 	var result *gorm.DB
+
 	if id > 0 {
 		result = db.Updates(&page)
 	} else {
@@ -35,4 +41,5 @@ func SaveOrUpdatePage(db *gorm.DB, id int, name, label, cover string) (*Page, er
 	}
 
 	return &page, result.Error
+
 }

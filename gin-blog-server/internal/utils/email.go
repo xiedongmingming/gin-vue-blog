@@ -21,6 +21,7 @@ func Email(to, subject, body string) error {
 // subject: 邮件标题
 // body: 邮件内容 (HTML)
 func send(to []string, subject string, body string) error {
+
 	from := g.GetConfig().Email.From
 	nickname := g.GetConfig().Email.Nickname
 	secret := g.GetConfig().Email.Secret
@@ -35,7 +36,9 @@ func send(to []string, subject string, body string) error {
 	e.HTML = []byte(body)                           // 内容
 
 	var err error
+
 	auth := smtp.PlainAuth("", from, secret, host)
+
 	addr := fmt.Sprintf("%s:%d", host, port)
 
 	if isSSL {
@@ -45,4 +48,5 @@ func send(to []string, subject string, body string) error {
 	}
 
 	return err
+
 }

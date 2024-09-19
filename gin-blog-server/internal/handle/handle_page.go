@@ -20,15 +20,21 @@ type Page struct{}
 // @Security ApiKeyAuth
 // @Router /page/list [get]
 func (*Page) GetList(c *gin.Context) {
+
 	db := GetDB(c)
 	rdb := GetRDB(c)
 
 	// get from cache
 	cache, err := getPageCache(rdb)
+
 	if cache != nil && err == nil {
+
 		slog.Debug("[handle-page-GetList] get page list from cache")
+
 		ReturnSuccess(c, cache)
+
 		return
+
 	}
 
 	switch err {
@@ -41,18 +47,26 @@ func (*Page) GetList(c *gin.Context) {
 
 	// get from db
 	data, _, err := model.GetPageList(db)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	// add to cache
 	if err := addPageCache(GetRDB(c), data); err != nil {
+
 		ReturnError(c, g.ErrRedisOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, data)
+
 }
 
 // @Summary 添加或修改页面

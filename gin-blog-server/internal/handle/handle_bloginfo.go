@@ -90,29 +90,49 @@ func (*BlogInfo) UpdateConfig(c *gin.Context) {
 // @Success 0 {object} Response[model.BlogHomeVO]
 // @Router /home [get]
 func (*BlogInfo) GetHomeInfo(c *gin.Context) {
+
 	db := GetDB(c)
+
 	rdb := GetRDB(c)
 
 	articleCount, err := model.Count(db, &model.Article{}, "status = ? AND is_delete = ?", 1, 0)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
+
 	userCount, err := model.Count(db, &model.UserInfo{})
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
+
 	messageCount, err := model.Count(db, &model.Message{})
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	viewCount, err := rdb.Get(rctx, g.VIEW_COUNT).Int()
+
 	if err != nil && err != redis.Nil {
+
 		ReturnError(c, g.ErrRedisOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, BlogHomeVO{
@@ -121,6 +141,7 @@ func (*BlogInfo) GetHomeInfo(c *gin.Context) {
 		MessageCount: messageCount,
 		ViewCount:    viewCount,
 	})
+
 }
 
 // @Summary 获取关于
@@ -142,19 +163,29 @@ func (*BlogInfo) GetAbout(c *gin.Context) {
 // @Success 0 {object} Response[string]
 // @Router /about [put]
 func (*BlogInfo) UpdateAbout(c *gin.Context) {
+
 	var req AboutReq
+
 	if err := c.ShouldBindJSON(&req); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	err := model.CheckConfig(GetDB(c), g.CONFIG_ABOUT, req.Content)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, req.Content)
+
 }
 
 // @Summary 上报用户信息
@@ -166,34 +197,49 @@ func (*BlogInfo) UpdateAbout(c *gin.Context) {
 // @Success 0 {object} Response[any]
 // @Router /report [post]
 func (*BlogInfo) Report(c *gin.Context) {
+
 	rdb := GetRDB(c)
 
 	ipAddress := utils.IP.GetIpAddress(c)
 	userAgent := utils.IP.GetUserAgent(c)
+
 	browser := userAgent.Name + " " + userAgent.Version.String()
+
 	os := userAgent.OS + " " + userAgent.OSVersion.String()
+
 	uuid := utils.MD5(ipAddress + browser + os)
 
 	ctx := context.Background()
 
 	// 当前用户没有统计过访问人数 (不在 用户set 中)
 	if !rdb.SIsMember(ctx, g.KEY_UNIQUE_VISITOR_SET, uuid).Val() {
+
 		// 统计地域信息
 		ipSource := utils.IP.GetIpSource(ipAddress)
+
 		if ipSource != "" { // 获取到具体的位置, 提取出其中的 省份
+
 			address := strings.Split(ipSource, "|")
+
 			province := strings.ReplaceAll(address[2], "省", "")
+
 			rdb.HIncrBy(ctx, g.VISITOR_AREA, province, 1)
+
 		} else {
+
 			rdb.HIncrBy(ctx, g.VISITOR_AREA, "未知", 1)
+
 		}
+
 		// 访问数量 + 1
 		rdb.Incr(ctx, g.VIEW_COUNT)
+
 		// 将当前用户记录到 用户set
 		rdb.SAdd(ctx, g.KEY_UNIQUE_VISITOR_SET, uuid)
 	}
 
 	ReturnSuccess(c, nil)
+
 }
 
 // 获取博客设置

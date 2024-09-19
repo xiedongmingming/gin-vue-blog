@@ -47,36 +47,48 @@ type CustomResponseWriter struct {
 }
 
 func (w CustomResponseWriter) Write(b []byte) (int, error) {
+
 	w.body.Write(b) // 将响应数据存到缓存中
+
 	return w.ResponseWriter.Write(b)
+
 }
 
 func (w CustomResponseWriter) WriteString(s string) (int, error) {
+
 	w.body.WriteString(s) // 将响应数据存到缓存中
+
 	return w.ResponseWriter.WriteString(s)
+
 }
 
 // 记录操作日志中间件
 func OperationLog() gin.HandlerFunc {
+
 	return func(c *gin.Context) {
+
 		// TODO: 记录文件上传
 		// 不记录 GET 请求操作记录 (太多了) 和 文件上传操作记录 (请求体太长)
 		if c.Request.Method != "GET" && !strings.Contains(c.Request.RequestURI, "upload") {
+
 			blw := &CustomResponseWriter{
 				body:           bytes.NewBufferString(""),
 				ResponseWriter: c.Writer,
 			}
+
 			c.Writer = blw
 
 			auth, _ := handle.CurrentUserAuth(c)
 
 			body, _ := io.ReadAll(c.Request.Body)
+
 			c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 
 			ipAddress := utils.IP.GetIpAddress(c)
 			ipSource := utils.IP.GetIpSource(ipAddress)
 
 			moduleName := getOptResource(c.HandlerName())
+
 			operationLog := model.OperationLog{
 				OptModule:     moduleName, // TODO: 优化
 				OptType:       GetOptString(c.Request.Method),
@@ -90,23 +102,38 @@ func OperationLog() gin.HandlerFunc {
 				IpAddress:     ipAddress,
 				IpSource:      ipSource,
 			}
+
 			c.Next()
+
 			operationLog.ResponseData = blw.body.String() // 从缓存中获取响应体内容
 
 			db := c.MustGet(g.CTX_DB).(*gorm.DB)
+
 			if err := db.Create(&operationLog).Error; err != nil {
+
 				slog.Error("操作日志记录失败: ", err)
+
 				handle.ReturnError(c, g.ErrDbOp, err)
+
 				return
+
 			}
+
 		} else {
+
 			c.Next()
+
 		}
+
 	}
+
 }
 
 // "gin-blog/api/v1.(*Resource).Delete-fm" => "Resource"
 func getOptResource(handlerName string) string {
+
 	s := strings.Split(handlerName, ".")[1]
+
 	return s[2 : len(s)-1]
+
 }

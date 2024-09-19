@@ -17,7 +17,9 @@ type CategoryVO struct {
 }
 
 func GetCategoryList(db *gorm.DB, num, size int, keyword string) ([]CategoryVO, int64, error) {
+
 	var list = make([]CategoryVO, 0)
+
 	var total int64
 
 	db = db.Table("category c").
@@ -35,41 +37,60 @@ func GetCategoryList(db *gorm.DB, num, size int, keyword string) ([]CategoryVO, 
 		Find(&list)
 
 	return list, total, result.Error
+
 }
 
 func GetCategoryOption(db *gorm.DB) ([]OptionVO, error) {
+
 	var list = make([]OptionVO, 0)
+
 	result := db.Model(&Category{}).Select("id", "name").Find(&list)
+
 	return list, result.Error
+
 }
 
 func GetCategoryById(db *gorm.DB, id int) (*Category, error) {
+
 	var category Category
+
 	result := db.Where("id", id).First(&category)
+
 	return &category, result.Error
+
 }
 
 func GetCategoryByName(db *gorm.DB, name string) (*Category, error) {
+
 	var category Category
+
 	result := db.Where("name", name).First(&category)
+
 	return &category, result.Error
+
 }
 
 func DeleteCategory(db *gorm.DB, ids []int) (int64, error) {
+
 	result := db.Where("id IN ?", ids).Delete(Category{})
+
 	if result.Error != nil {
 		return 0, result.Error
 	}
+
 	return result.RowsAffected, nil
+
 }
 
 func SaveOrUpdateCategory(db *gorm.DB, id int, name string) (*Category, error) {
+
 	category := Category{
 		Model: Model{ID: id},
 		Name:  name,
 	}
 
 	var result *gorm.DB
+
 	if id > 0 {
 		result = db.Updates(category)
 	} else {
@@ -77,4 +98,5 @@ func SaveOrUpdateCategory(db *gorm.DB, id int, name string) (*Category, error) {
 	}
 
 	return &category, result.Error
+
 }

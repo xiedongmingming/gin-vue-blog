@@ -145,13 +145,18 @@ func CheckMenuHasChild(db *gorm.DB, id int) (bool, error) {
 
 // 获取所有菜单列表（超级管理员用）
 func GetAllMenuList(db *gorm.DB) (menu []Menu, err error) {
+
 	result := db.Find(&menu)
+
 	return menu, result.Error
+
 }
 
 // 根据 user_id 获取菜单列表
 func GetMenuListByUserId(db *gorm.DB, id int) (menus []Menu, err error) {
+
 	var userAuth UserAuth
+
 	result := db.Where(&UserAuth{Model: Model{ID: id}}).
 		Preload("Roles").Preload("Roles.Menus").
 		First(&userAuth)
@@ -161,6 +166,7 @@ func GetMenuListByUserId(db *gorm.DB, id int) (menus []Menu, err error) {
 	}
 
 	set := make(map[int]Menu)
+
 	for _, role := range userAuth.Roles {
 		for _, menu := range role.Menus {
 			set[menu.ID] = menu
@@ -172,25 +178,35 @@ func GetMenuListByUserId(db *gorm.DB, id int) (menus []Menu, err error) {
 	}
 
 	return menus, nil
+
 }
 
 func GetMenuList(db *gorm.DB, keyword string) (list []Menu, total int64, err error) {
+
 	db = db.Model(&Menu{})
+
 	if keyword != "" {
 		db = db.Where("name like ?", "%"+keyword+"%")
 	}
+
 	result := db.Count(&total).Find(&list)
+
 	return list, total, result.Error
+
 }
 
 func DeleteMenu(db *gorm.DB, id int) error {
+
 	result := db.Delete(&Menu{}, id)
+
 	return result.Error
+
 }
 
 // Resource
 
 func SaveOrUpdateResource(db *gorm.DB, id, pid int, name, url, method string) error {
+
 	resource := Resource{
 		Model:    Model{ID: id},
 		Name:     name,
@@ -200,6 +216,7 @@ func SaveOrUpdateResource(db *gorm.DB, id, pid int, name, url, method string) er
 	}
 
 	var result *gorm.DB
+
 	if id > 0 {
 		result = db.Updates(&resource)
 	} else {
@@ -209,33 +226,45 @@ func SaveOrUpdateResource(db *gorm.DB, id, pid int, name, url, method string) er
 		// * 解决方案: 新增子节点后, 删除该节点对应的父节点与角色的关联关系
 		// dao.Delete(model.RoleResource{}, "resource_id", data.ParentId)
 	}
+
 	return result.Error
+
 }
 
 func GetResourceIdsByRoleId(db *gorm.DB, roleId int) (ids []int, err error) {
+
 	result := db.Model(&RoleResource{}).
 		Where("role_id = ?", roleId).
 		Pluck("resource_id", &ids)
+
 	return ids, result.Error
+
 }
 
 func GetResourceList(db *gorm.DB, keyword string) (list []Resource, err error) {
+
 	if keyword != "" {
 		db = db.Where("name like ?", "%"+keyword+"%")
 	}
 
 	result := db.Find(&list)
+
 	return list, result.Error
+
 }
 
 func GetResourceListByIds(db *gorm.DB, ids []int) (list []Resource, err error) {
+
 	result := db.Where("id in ?", ids).Find(&list)
+
 	return list, result.Error
+
 }
 
 // Role
 
 func SaveOrUpdateRole(db *gorm.DB, id int, name, label string, isDisable bool) error {
+
 	role := Role{
 		Model:     Model{ID: id},
 		Name:      name,
@@ -244,6 +273,7 @@ func SaveOrUpdateRole(db *gorm.DB, id int, name, label string, isDisable bool) e
 	}
 
 	var result *gorm.DB
+
 	if id > 0 {
 		result = db.Updates(&role)
 	} else {
@@ -251,45 +281,64 @@ func SaveOrUpdateRole(db *gorm.DB, id int, name, label string, isDisable bool) e
 	}
 
 	return result.Error
+
 }
 
 func GetRoleOption(db *gorm.DB) (list []OptionVO, err error) {
+
 	result := db.Model(&Role{}).Select("id", "name").Find(&list)
+
 	if result.Error != nil {
 		return nil, result.Error
 	}
+
 	return list, nil
+
 }
 
 func GetRoleList(db *gorm.DB, num, size int, keyword string) (list []RoleVO, total int64, err error) {
+
 	db = db.Model(&Role{})
+
 	if keyword != "" {
 		db = db.Where("name like ?", "%"+keyword+"%")
 	}
+
 	db.Count(&total)
+
 	result := db.Select("id", "name", "label", "created_at", "is_disable").
 		Scopes(Paginate(num, size)).
 		Find(&list)
+
 	return list, total, result.Error
+
 }
 
 func GetRoleIdsByUserId(db *gorm.DB, userAuthId int) (ids []int, err error) {
+
 	result := db.
 		Model(&UserAuthRole{UserAuthId: userAuthId}).
 		Pluck("role_id", &ids)
+
 	return ids, result.Error
+
 }
 
 func SaveRole(db *gorm.DB, name, label string) error {
+
 	role := Role{
 		Name:  name,
 		Label: label,
 	}
+
 	result := db.Create(&role)
+
 	return result.Error
+
 }
 
 func UpdateRole(db *gorm.DB, id int, name, label string, isDisable bool, resourceIds, menuIds []int) error {
+
 	role := Role{
 		Model:     Model{ID: id},
 		Name:      name,
@@ -298,6 +347,7 @@ func UpdateRole(db *gorm.DB, id int, name, label string, isDisable bool, resourc
 	}
 
 	return db.Transaction(func(tx *gorm.DB) error {
+
 		if err := db.Model(&role).Select("name", "label", "is_disable").Updates(&role).Error; err != nil {
 			return err
 		}
@@ -306,6 +356,7 @@ func UpdateRole(db *gorm.DB, id int, name, label string, isDisable bool, resourc
 		if err := db.Delete(&RoleResource{}, "role_id = ?", id).Error; err != nil {
 			return err
 		}
+
 		for _, rid := range resourceIds {
 			if err := db.Create(&RoleResource{RoleId: role.ID, ResourceId: rid}).Error; err != nil {
 				return err
@@ -316,44 +367,58 @@ func UpdateRole(db *gorm.DB, id int, name, label string, isDisable bool, resourc
 		if err := db.Delete(&RoleMenu{}, "role_id = ?", id).Error; err != nil {
 			return err
 		}
+
 		for _, mid := range menuIds {
 			if err := db.Create(&RoleMenu{RoleId: role.ID, MenuId: mid}).Error; err != nil {
 				return err
 			}
 		}
+
 		return nil
+
 	})
+
 }
 
 // 删除角色: 事务删除 role, role_resource, role_menu
 func DeleteRoles(db *gorm.DB, ids []int) error {
+
 	return db.Transaction(func(tx *gorm.DB) error {
 
 		result := db.Delete(&Role{}, "id in ?", ids)
+
 		if result.Error != nil {
 			return result.Error
 		}
 
 		result = db.Delete(&RoleResource{}, "role_id in ?", ids)
+
 		if result.Error != nil {
 			return result.Error
 		}
 
 		result = db.Delete(&RoleMenu{}, "role_id in ?", ids)
+
 		if result.Error != nil {
 			return result.Error
 		}
 
 		return nil
+
 	})
+
 }
 
 // UserAuth
 
 func GetUserAuthInfoById(db *gorm.DB, id int) (*UserAuth, error) {
+
 	var userAuth = UserAuth{Model: Model{ID: id}}
+
 	result := db.Model(&userAuth).
 		Preload("Roles").Preload("UserInfo").
 		First(&userAuth)
+
 	return &userAuth, result.Error
+
 }

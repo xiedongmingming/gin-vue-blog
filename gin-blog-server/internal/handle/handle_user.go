@@ -2,13 +2,15 @@ package handle
 
 import (
 	"encoding/json"
-	g "gin-blog/internal/global"
-	"gin-blog/internal/model"
-	"gin-blog/internal/utils"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"gin-blog/internal/model"
+	"gin-blog/internal/utils"
+
+	g "gin-blog/internal/global"
 
 	"github.com/gin-gonic/gin"
 )
@@ -50,29 +52,45 @@ type ForceOfflineReq struct {
 	UserInfoId int `json:"user_info_id"`
 }
 
-// 根据 Token 获取用户信息
+// 根据TOKEN获取用户信息
 func (*User) GetInfo(c *gin.Context) {
+
 	rdb := GetRDB(c)
 
 	user, err := CurrentUserAuth(c)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrTokenRuntime, err)
+
 		return
+
 	}
 
 	userInfoVO := model.UserInfoVO{UserInfo: *user.UserInfo}
+
 	userInfoVO.ArticleLikeSet, err = rdb.SMembers(rctx, g.ARTICLE_USER_LIKE_SET+strconv.Itoa(user.UserInfoId)).Result()
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
+
 	userInfoVO.CommentLikeSet, err = rdb.SMembers(rctx, g.COMMENT_USER_LIKE_SET+strconv.Itoa(user.UserInfoId)).Result()
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, userInfoVO)
+
 }
 
 // TODO: 用户区域分布 GetUserAreas, StatisticUserAreas

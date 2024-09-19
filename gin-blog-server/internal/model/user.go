@@ -22,15 +22,23 @@ type UserInfoVO struct {
 }
 
 func GetUserInfoById(db *gorm.DB, id int) (*UserInfo, error) {
+
 	var userInfo UserInfo
+
 	result := db.Model(&userInfo).Where("id", id).First(&userInfo)
+
 	return &userInfo, result.Error
+
 }
 
 func GetUserAuthInfoByName(db *gorm.DB, name string) (*UserAuth, error) {
+
 	var userAuth UserAuth
+
 	result := db.Where(&UserAuth{Username: name}).First(&userAuth)
+
 	return &userAuth, result.Error
+
 }
 
 func GetUserList(db *gorm.DB, page, size int, loginType int8, nickname, username string) (list []UserAuth, total int64, err error) {
@@ -128,7 +136,9 @@ func UpdateUserDisable(db *gorm.DB, id int, isDisable bool) error {
 
 // 更新用户登录信息
 func UpdateUserLoginInfo(db *gorm.DB, id int, ipAddress, ipSource string) error {
+
 	now := time.Now()
+
 	userAuth := UserAuth{
 		IpAddress:     ipAddress,
 		IpSource:      ipSource,
@@ -136,5 +146,7 @@ func UpdateUserLoginInfo(db *gorm.DB, id int, ipAddress, ipSource string) error 
 	}
 
 	result := db.Where("id", id).Updates(userAuth)
+
 	return result.Error
+
 }

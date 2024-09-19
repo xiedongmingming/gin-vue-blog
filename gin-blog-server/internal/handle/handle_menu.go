@@ -20,10 +20,13 @@ type MenuTreeVO struct {
 
 // 获取当前用户菜单: 生成后台管理界面的菜单
 func (*Menu) GetUserMenu(c *gin.Context) {
+
 	db := GetDB(c)
+
 	auth, _ := CurrentUserAuth(c)
 
 	var menus []model.Menu
+
 	var err error
 
 	if auth.IsSuper {
@@ -33,11 +36,15 @@ func (*Menu) GetUserMenu(c *gin.Context) {
 	}
 
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, menus2MenuVos(menus))
+
 }
 
 func (*Menu) GetTreeList(c *gin.Context) {
@@ -132,22 +139,31 @@ func (*Menu) GetOption(c *gin.Context) {
 
 // 构建菜单列表的树形结构数据, []Menu => []MenuVo
 func menus2MenuVos(menus []model.Menu) []MenuTreeVO {
+
 	result := make([]MenuTreeVO, 0)
 
 	firstLevelMenus := getFirstLevelMenus(menus)
+
 	childrenMap := getMenuChildrenMap(menus)
 
 	for _, first := range firstLevelMenus {
+
 		menu := MenuTreeVO{Menu: first}
+
 		for _, childMenu := range childrenMap[first.ID] {
 			menu.Children = append(menu.Children, MenuTreeVO{Menu: childMenu})
 		}
+
 		delete(childrenMap, first.ID)
+
 		result = append(result, menu)
+
 	}
 
 	sortMenu(result)
+
 	return result
+
 }
 
 // 筛选出一级菜单 (parentId == 0 的菜单)
