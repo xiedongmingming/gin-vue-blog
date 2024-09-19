@@ -19,10 +19,9 @@ type UserAuth struct {
 	LastLoginTime *time.Time `json:"last_login_time"`
 	IsDisable     bool       `json:"is_disable"`
 	IsSuper       bool       `json:"is_super"` // 超级管理员只能后台设置
-
-	UserInfoId int       `json:"user_info_id"`
-	UserInfo   *UserInfo `json:"info"`
-	Roles      []*Role   `json:"roles" gorm:"many2many:user_auth_role"`
+	UserInfoId    int        `json:"user_info_id"`
+	UserInfo      *UserInfo  `json:"info"`
+	Roles         []*Role    `json:"roles" gorm:"many2many:user_auth_role"`
 }
 
 func (u *UserAuth) MarshalBinary() (data []byte, err error) {
@@ -31,10 +30,9 @@ func (u *UserAuth) MarshalBinary() (data []byte, err error) {
 
 type Role struct {
 	Model
-	Name      string `gorm:"unique" json:"name"`
-	Label     string `gorm:"unique" json:"label"`
-	IsDisable bool   `json:"is_disable"`
-
+	Name      string     `gorm:"unique" json:"name"`
+	Label     string     `gorm:"unique" json:"label"`
+	IsDisable bool       `json:"is_disable"`
 	Resources []Resource `json:"resources" gorm:"many2many:role_resource"`
 	Menus     []Menu     `json:"menus" gorm:"many2many:role_menu"`
 	Users     []UserAuth `json:"users" gorm:"many2many:user_auth_role"`
@@ -42,13 +40,12 @@ type Role struct {
 
 type Resource struct {
 	Model
-	Name      string `gorm:"unique;type:varchar(50)" json:"name"`
-	ParentId  int    `json:"parent_id"`
-	Url       string `gorm:"type:varchar(255)" json:"url"`
-	Method    string `gorm:"type:varchar(10)" json:"request_method"`
-	Anonymous bool   `json:"is_anonymous"`
-
-	Roles []*Role `json:"roles" gorm:"many2many:role_resource"`
+	Name      string  `gorm:"unique;type:varchar(50)" json:"name"`
+	ParentId  int     `json:"parent_id"`
+	Url       string  `gorm:"type:varchar(255)" json:"url"`
+	Method    string  `gorm:"type:varchar(10)" json:"request_method"`
+	Anonymous bool    `json:"is_anonymous"`
+	Roles     []*Role `json:"roles" gorm:"many2many:role_resource"`
 }
 
 /*

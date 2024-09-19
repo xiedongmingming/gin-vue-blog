@@ -39,7 +39,6 @@ func MakeMigrate(db *gorm.DB) error {
 }
 
 // 通用模型
-
 type Model struct {
 	ID        int       `gorm:"primary_key;auto_increment" json:"id"`
 	CreatedAt time.Time `json:"created_at"`

@@ -81,16 +81,24 @@ type Config struct {
 var Conf *Config
 
 func GetConfig() *Config {
+
 	if Conf == nil {
+
 		log.Panic("配置文件未初始化")
+
 		return nil
+
 	}
+
 	return Conf
+
 }
 
 // 从指定路径读取配置文件
 func ReadConfig(path string) *Config {
+
 	v := viper.New()
+
 	v.SetConfigFile(path)
 	v.AutomaticEnv()                                   // 允许使用环境变量
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_")) // SERVER_APPMODE => SERVER.APPMODE
@@ -104,34 +112,50 @@ func ReadConfig(path string) *Config {
 	}
 
 	log.Println("配置文件内容加载成功: ", path)
+
 	return Conf
+
 }
 
 // 数据库类型
 func (*Config) DbType() string {
+
 	if Conf.Server.DbType == "" {
 		Conf.Server.DbType = "sqlite"
 	}
+
 	return Conf.Server.DbType
+
 }
 
 // 数据库连接字符串
 func (*Config) DbDSN() string {
+
 	switch Conf.Server.DbType {
+
 	case "mysql":
+
 		conf := Conf.Mysql
+
 		return fmt.Sprintf(
 			"%s:%s@tcp(%s:%s)/%s?%s",
 			conf.Username, conf.Password, conf.Host, conf.Port, conf.Dbname, conf.Config,
 		)
+
 	case "sqlite":
+
 		return Conf.SQLite.Dsn
-	// 默认使用 sqlite, 并且使用内存数据库
-	default:
+
+	default: // 默认使用SQLITE，并且使用内存数据库
+
 		Conf.Server.DbType = "sqlite"
+
 		if Conf.SQLite.Dsn == "" {
 			Conf.SQLite.Dsn = "file::memory:"
 		}
+
 		return Conf.SQLite.Dsn
+
 	}
+
 }

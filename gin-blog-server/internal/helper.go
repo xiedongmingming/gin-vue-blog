@@ -17,9 +17,11 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-// 根据配置文件初始化 slog 日志
+// 根据配置文件初始化SLOG日志
 func InitLogger(conf *g.Config) *slog.Logger {
+
 	var level slog.Level
+
 	switch conf.Log.Level {
 	case "debug":
 		level = slog.LevelDebug
@@ -47,6 +49,7 @@ func InitLogger(conf *g.Config) *slog.Logger {
 	}
 
 	var handler slog.Handler
+
 	switch conf.Log.Format {
 	case "json":
 		handler = slog.NewJSONHandler(os.Stdout, option)
@@ -57,12 +60,16 @@ func InitLogger(conf *g.Config) *slog.Logger {
 	}
 
 	logger := slog.New(handler)
+
 	slog.SetDefault(logger)
+
 	return logger
+
 }
 
 // 根据配置文件初始化数据库
 func InitDatabase(conf *g.Config) *gorm.DB {
+
 	dbtype := conf.DbType()
 	dsn := conf.DbDSN()
 
@@ -70,6 +77,7 @@ func InitDatabase(conf *g.Config) *gorm.DB {
 	var err error
 
 	var level logger.LogLevel
+
 	switch conf.Server.DbLogMode {
 	case "silent":
 		level = logger.Silent
@@ -104,6 +112,7 @@ func InitDatabase(conf *g.Config) *gorm.DB {
 	if err != nil {
 		log.Fatal("数据库连接失败", err)
 	}
+
 	log.Println("数据库连接成功", dbtype, dsn)
 
 	if conf.Server.DbAutoMigrate {
@@ -114,10 +123,12 @@ func InitDatabase(conf *g.Config) *gorm.DB {
 	}
 
 	return db
+
 }
 
-// 根据配置文件初始化 Redis
+// 根据配置文件初始化REDIS
 func InitRedis(conf *g.Config) *redis.Client {
+
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     conf.Redis.Addr,
 		Password: conf.Redis.Password,
@@ -125,10 +136,13 @@ func InitRedis(conf *g.Config) *redis.Client {
 	})
 
 	_, err := rdb.Ping(context.Background()).Result()
+
 	if err != nil {
 		log.Fatal("Redis 连接失败: ", err)
 	}
 
 	log.Println("Redis 连接成功", conf.Redis.Addr, conf.Redis.DB, conf.Redis.Password)
+
 	return rdb
+
 }
