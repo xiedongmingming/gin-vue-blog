@@ -21,16 +21,25 @@ type OperationLog struct{}
 // @Security ApiKeyAuth
 // @Router /operation/log/list [get]
 func (*OperationLog) GetList(c *gin.Context) {
+
 	var query PageQuery
+
 	if err := c.ShouldBindQuery(&query); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	list, total, err := model.GetOperationLogList(GetDB(c), query.Page, query.Size, query.Keyword)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, PageResult[model.OperationLog]{
@@ -39,6 +48,7 @@ func (*OperationLog) GetList(c *gin.Context) {
 		Size:  query.Size,
 		Page:  query.Page,
 	})
+
 }
 
 // @Summary 删除操作日志
@@ -51,17 +61,27 @@ func (*OperationLog) GetList(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /operation/log [delete]
 func (*OperationLog) Delete(c *gin.Context) {
+
 	var ids []int
+
 	if err := c.ShouldBindJSON(&ids); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	result := GetDB(c).Delete(&model.OperationLog{}, "id in ?", ids)
+
 	if result.Error != nil {
+
 		ReturnError(c, g.ErrDbOp, result.Error)
+
 		return
+
 	}
 
 	ReturnSuccess(c, result.RowsAffected)
+
 }

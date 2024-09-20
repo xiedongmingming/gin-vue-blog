@@ -32,19 +32,29 @@ type Message struct{}
 // @Security ApiKeyAuth
 // @Router /category [delete]
 func (*Message) Delete(c *gin.Context) {
+
 	var ids []int
+
 	if err := c.ShouldBindJSON(&ids); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	rows, err := model.DeleteMessages(GetDB(c), ids)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, rows)
+
 }
 
 // @Summary 修改留言审核（批量）
@@ -57,19 +67,29 @@ func (*Message) Delete(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /message/review [put]
 func (*Message) UpdateReview(c *gin.Context) {
+
 	var req UpdateReviewReq
+
 	if err := c.ShouldBindJSON(&req); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	rows, err := model.UpdateMessagesReview(GetDB(c), req.Ids, req.IsReview)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, rows)
+
 }
 
 // @Summary 条件查询留言列表
@@ -85,21 +105,32 @@ func (*Message) UpdateReview(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /message/list [get]
 func (*Message) GetList(c *gin.Context) {
+
 	var query MessageQuery
+
 	if err := c.ShouldBindQuery(&query); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	data, total, err := model.GetMessageList(GetDB(c), query.Page, query.Size, query.Nickname, query.IsReview)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
+
 	ReturnSuccess(c, PageResult[model.Message]{
 		Total: total,
 		List:  data,
 		Size:  query.Size,
 		Page:  query.Page,
 	})
+
 }

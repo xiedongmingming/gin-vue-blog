@@ -3,9 +3,10 @@ package model
 import (
 	"testing"
 
+	"gorm.io/gorm"
+
 	"github.com/glebarez/sqlite"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/gorm"
 )
 
 func createRole(t *testing.T, db *gorm.DB, name, label string) *Role {

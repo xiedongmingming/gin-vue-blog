@@ -27,16 +27,25 @@ type AddOrEditCategoryReq struct {
 // @Security ApiKeyAuth
 // @Router /category/list [get]
 func (*Category) GetList(c *gin.Context) {
+
 	var query PageQuery
+
 	if err := c.ShouldBindQuery(&query); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	data, total, err := model.GetCategoryList(GetDB(c), query.Page, query.Size, query.Keyword)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, PageResult[model.CategoryVO]{
@@ -45,6 +54,7 @@ func (*Category) GetList(c *gin.Context) {
 		Size:  query.Size,
 		Page:  query.Page,
 	})
+
 }
 
 // @Summary 添加或修改分类
@@ -57,19 +67,29 @@ func (*Category) GetList(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /category [post]
 func (*Category) SaveOrUpdate(c *gin.Context) {
+
 	var req AddOrEditCategoryReq
+
 	if err := c.ShouldBindJSON(&req); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	category, err := model.SaveOrUpdateCategory(GetDB(c), req.ID, req.Name)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, category)
+
 }
 
 // @Summary 删除分类（批量）
@@ -82,32 +102,50 @@ func (*Category) SaveOrUpdate(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /category [delete]
 func (*Category) Delete(c *gin.Context) {
+
 	var ids []int
+
 	if err := c.ShouldBindJSON(&ids); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	db := GetDB(c)
 
 	// 检查分类下是否存在文章
 	count, err := model.Count(db, &model.Article{}, "category_id in ?", ids)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	if count > 0 {
+
 		ReturnError(c, g.ErrCateHasArt, nil)
+
 		return
+
 	}
 
 	rows, err := model.DeleteCategory(db, ids)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
+
 	ReturnSuccess(c, rows)
+
 }
 
 // @Summary 获取分类选项列表
@@ -119,10 +157,17 @@ func (*Category) Delete(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /category/option [get]
 func (*Category) GetOption(c *gin.Context) {
+
 	list, err := model.GetCategoryOption(GetDB(c))
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
+
 	ReturnSuccess(c, list)
+
 }

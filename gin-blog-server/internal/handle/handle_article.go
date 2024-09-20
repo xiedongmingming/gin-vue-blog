@@ -58,13 +58,19 @@ type ArticleVO struct {
 }
 
 func (*Article) SaveOrUpdate(c *gin.Context) {
+
 	var req AddOrEditArticleReq
+
 	if err := c.ShouldBindJSON(&req); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	db := GetDB(c)
+
 	auth, _ := CurrentUserAuth(c)
 
 	if req.Img == "" {
@@ -89,79 +95,123 @@ func (*Article) SaveOrUpdate(c *gin.Context) {
 	}
 
 	err := model.SaveOrUpdateArticle(db, &article, req.CategoryName, req.TagNames)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, article)
+
 }
 
 func (*Article) UpdateSoftDelete(c *gin.Context) {
+
 	var req SoftDeleteReq
+
 	if err := c.ShouldBindJSON(&req); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	rows, err := model.UpdateArticleSoftDelete(GetDB(c), req.Ids, req.IsDelete)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, rows)
+
 }
 
 func (*Article) Delete(c *gin.Context) {
+
 	var ids []int
+
 	if err := c.ShouldBindJSON(&ids); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	rows, err := model.DeleteArticle(GetDB(c), ids)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, rows)
+
 }
 
 func (*Article) GetList(c *gin.Context) {
+
 	var query ArticleQuery
+
 	if err := c.ShouldBindQuery(&query); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	db := GetDB(c)
+
 	rdb := GetRDB(c)
 
 	list, total, err := model.GetArticleList(db, query.Page, query.Size, query.Title, query.IsDelete, query.Status, query.Type, query.CategoryId, query.TagId)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	likeCountMap := rdb.HGetAll(rctx, g.ARTICLE_LIKE_COUNT).Val()
+
 	viewCountZ := rdb.ZRangeWithScores(rctx, g.ARTICLE_VIEW_COUNT, 0, -1).Val()
 
 	viewCountMap := make(map[int]int)
+
 	for _, article := range viewCountZ {
+
 		id, _ := strconv.Atoi(article.Member.(string))
+
 		viewCountMap[id] = int(article.Score)
+
 	}
 
 	data := make([]ArticleVO, 0)
+
 	for _, article := range list {
+
 		likeCount, _ := strconv.Atoi(likeCountMap[strconv.Itoa(article.ID)])
+
 		data = append(data, ArticleVO{
 			Article:   article,
 			LikeCount: likeCount,
 			ViewCount: viewCountMap[article.ID],
 		})
+
 	}
 
 	ReturnSuccess(c, PageResult[ArticleVO]{
@@ -175,36 +225,56 @@ func (*Article) GetList(c *gin.Context) {
 
 // 获取文章详细信息
 func (*Article) GetDetail(c *gin.Context) {
+
 	id, err := strconv.Atoi(c.Param("id"))
+
 	if err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	article, err := model.GetArticle(GetDB(c), id)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, article)
+
 }
 
 // 修改置顶信息
 func (*Article) UpdateTop(c *gin.Context) {
+
 	var req UpdateArticleTopReq
+
 	if err := c.ShouldBindJSON(&req); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	err := model.UpdateArticleTop(GetDB(c), req.ID, req.IsTop)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, nil)
+
 }
 
 // TODO: 目前是前端导出
@@ -215,44 +285,75 @@ func (*Article) Export(c *gin.Context) {
 
 // 导入文章: 题目 + 内容
 func (*Article) Import(c *gin.Context) {
+
 	db := GetDB(c)
+
 	auth, _ := CurrentUserAuth(c)
 
 	_, fileHeader, err := c.Request.FormFile("file")
+
 	if err != nil {
+
 		ReturnError(c, g.ErrFileReceive, err)
+
 		return
+
 	}
 
 	fileName := fileHeader.Filename
+
 	title := fileName[:len(fileName)-3]
+
 	content, err := readFromFileHeader(fileHeader)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrFileReceive, err)
+
 		return
+
 	}
 
 	defaultImg := model.GetConfig(db, g.CONFIG_ARTICLE_COVER)
+
 	err = model.ImportArticle(db, auth.ID, title, content, defaultImg)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, nil)
+
 }
 
 func readFromFileHeader(file *multipart.FileHeader) (string, error) {
+
 	open, err := file.Open()
+
 	if err != nil {
+
 		slog.Error("文件读取, 目标地址错误: ", err)
+
 		return "", err
+
 	}
+
 	defer open.Close()
+
 	all, err := io.ReadAll(open)
+
 	if err != nil {
+
 		slog.Error("文件读取失败: ", err)
+
 		return "", err
+
 	}
+
 	return string(all), nil
+
 }

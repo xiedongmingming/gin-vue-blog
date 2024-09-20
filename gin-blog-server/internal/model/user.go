@@ -42,6 +42,7 @@ func GetUserAuthInfoByName(db *gorm.DB, name string) (*UserAuth, error) {
 }
 
 func GetUserList(db *gorm.DB, page, size int, loginType int8, nickname, username string) (list []UserAuth, total int64, err error) {
+
 	if loginType != 0 {
 		db = db.Where("login_type = ?", loginType)
 	}
@@ -60,11 +61,14 @@ func GetUserList(db *gorm.DB, page, size int, loginType int8, nickname, username
 		Find(&list)
 
 	return list, total, result.Error
+
 }
 
 // 更新用户昵称及角色信息
 func UpdateUserNicknameAndRole(db *gorm.DB, authId int, nickname string, roleIds []int) error {
+
 	userAuth, err := GetUserAuthInfoById(db, authId)
+
 	if err != nil {
 		return err
 	}
@@ -73,7 +77,9 @@ func UpdateUserNicknameAndRole(db *gorm.DB, authId int, nickname string, roleIds
 		Model:    Model{ID: userAuth.UserInfoId},
 		Nickname: nickname,
 	}
+
 	result := db.Model(&userInfo).Updates(userInfo)
+
 	if result.Error != nil {
 		return result.Error
 	}
@@ -85,32 +91,41 @@ func UpdateUserNicknameAndRole(db *gorm.DB, authId int, nickname string, roleIds
 
 	// 更新用户角色, 清空原本的 user_role 关系, 添加新的关系
 	result = db.Where(UserAuthRole{UserAuthId: userAuth.UserInfoId}).Delete(UserAuthRole{})
+
 	if result.Error != nil {
 		return result.Error
 	}
 
 	var userRoles []UserAuthRole
+
 	for _, id := range roleIds {
 		userRoles = append(userRoles, UserAuthRole{
 			RoleId:     id,
 			UserAuthId: userAuth.ID,
 		})
 	}
+
 	result = db.Create(&userRoles)
 
 	return result.Error
+
 }
 
 func UpdateUserPassword(db *gorm.DB, id int, password string) error {
+
 	userAuth := UserAuth{
 		Model:    Model{ID: id},
 		Password: password,
 	}
+
 	result := db.Model(&userAuth).Updates(userAuth)
+
 	return result.Error
+
 }
 
 func UpdateUserInfo(db *gorm.DB, id int, nickname, avatar, intro, website string) error {
+
 	userInfo := UserInfo{
 		Model:    Model{ID: id},
 		Nickname: nickname,
@@ -122,16 +137,22 @@ func UpdateUserInfo(db *gorm.DB, id int, nickname, avatar, intro, website string
 	result := db.
 		Select("nickname", "avatar", "intro", "website").
 		Updates(userInfo)
+
 	return result.Error
+
 }
 
 func UpdateUserDisable(db *gorm.DB, id int, isDisable bool) error {
+
 	userAuth := UserAuth{
 		Model:     Model{ID: id},
 		IsDisable: isDisable,
 	}
+
 	result := db.Model(&userAuth).Select("is_disable").Updates(&userAuth)
+
 	return result.Error
+
 }
 
 // 更新用户登录信息

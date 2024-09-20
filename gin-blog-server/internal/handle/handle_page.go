@@ -79,28 +79,42 @@ func (*Page) GetList(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /page [post]
 func (*Page) SaveOrUpdate(c *gin.Context) {
+
 	var req model.Page
+
 	if err := c.ShouldBindJSON(&req); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	db := GetDB(c)
+
 	rdb := GetRDB(c)
 
 	page, err := model.SaveOrUpdatePage(db, req.ID, req.Name, req.Label, req.Cover)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	// delete cache
 	if err := removePageCache(rdb); err != nil {
+
 		ReturnError(c, g.ErrRedisOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, page)
+
 }
 
 // @Summary 删除页面
@@ -113,23 +127,36 @@ func (*Page) SaveOrUpdate(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /page [delete]
 func (*Page) Delete(c *gin.Context) {
+
 	var ids []int
+
 	if err := c.ShouldBindJSON(&ids); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	result := GetDB(c).Delete(model.Page{}, "id in ?", ids)
+
 	if result.Error != nil {
+
 		ReturnError(c, g.ErrDbOp, result.Error)
+
 		return
+
 	}
 
 	// delete cache
 	if err := removePageCache(GetRDB(c)); err != nil {
+
 		ReturnError(c, g.ErrRedisOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, result.RowsAffected)
+
 }

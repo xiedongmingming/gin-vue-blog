@@ -171,7 +171,9 @@ func (*Front) SaveMessage(c *gin.Context) {
 	db := GetDB(c)
 
 	ipAddress := utils.IP.GetIpAddress(c)
+
 	ipSource := utils.IP.GetIpSource(ipAddress)
+
 	isReview := model.GetConfigBool(db, g.CONFIG_IS_COMMENT_REVIEW)
 
 	info := auth.UserInfo

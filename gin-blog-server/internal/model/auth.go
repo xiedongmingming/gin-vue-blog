@@ -108,6 +108,7 @@ type RoleVO struct {
 // Menu
 
 func SaveOrUpdateMenu(db *gorm.DB, menu *Menu) error {
+
 	var result *gorm.DB
 
 	if menu.ID > 0 {
@@ -119,28 +120,43 @@ func SaveOrUpdateMenu(db *gorm.DB, menu *Menu) error {
 	}
 
 	return result.Error
+
 }
 
 func GetMenuIdsByRoleId(db *gorm.DB, roleId int) (ids []int, err error) {
+
 	result := db.Model(&RoleMenu{}).Where("role_id = ?", roleId).Pluck("menu_id", &ids)
+
 	return ids, result.Error
+
 }
 
 func GetMenuById(db *gorm.DB, id int) (menu *Menu, err error) {
+
 	result := db.First(&menu, id)
+
 	return menu, result.Error
+
 }
 
 func CheckMenuInUse(db *gorm.DB, id int) (bool, error) {
+
 	var count int64
+
 	result := db.Model(&RoleMenu{}).Where("menu_id = ?", id).Count(&count)
+
 	return count > 0, result.Error
+
 }
 
 func CheckMenuHasChild(db *gorm.DB, id int) (bool, error) {
+
 	var count int64
+
 	result := db.Model(&Menu{}).Where("parent_id = ?", id).Count(&count)
+
 	return count > 0, result.Error
+
 }
 
 // 获取所有菜单列表（超级管理员用）

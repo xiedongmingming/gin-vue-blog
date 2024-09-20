@@ -26,16 +26,25 @@ type AddOrEditTagReq struct {
 // @Security ApiKeyAuth
 // @Router /tag/list [get]
 func (*Tag) GetList(c *gin.Context) {
+
 	var query PageQuery
+
 	if err := c.ShouldBindQuery(&query); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	data, total, err := model.GetTagList(GetDB(c), query.Page, query.Size, query.Keyword)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, PageResult[model.TagVO]{
@@ -44,6 +53,7 @@ func (*Tag) GetList(c *gin.Context) {
 		Size:  query.Size,
 		Page:  query.Page,
 	})
+
 }
 
 // @Summary 添加或修改标签
@@ -56,19 +66,29 @@ func (*Tag) GetList(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /tag [post]
 func (*Tag) SaveOrUpdate(c *gin.Context) {
+
 	var form AddOrEditTagReq
+
 	if err := c.ShouldBindJSON(&form); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	tag, err := model.SaveOrUpdateTag(GetDB(c), form.ID, form.Name)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, tag)
+
 }
 
 // TODO: 删除行为, 添加强制删除: 有关联数据则将删除关联数据
@@ -82,32 +102,52 @@ func (*Tag) SaveOrUpdate(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /tag [delete]
 func (*Tag) Delete(c *gin.Context) {
+
 	var ids []int
+
 	if err := c.ShouldBindJSON(&ids); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
+
 	db := GetDB(c)
 
 	// 检查标签下面有没有文章
 	count, err := model.Count(db, &model.ArticleTag{}, "tag_id in ?", ids)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
+
 	if count > 0 {
+
 		// ReturnError(c, g.ERROR_TAG_ART_EXIST, nil)
+
 		ReturnError(c, g.ErrTagHasArt, nil)
+
 		return
+
 	}
 
 	result := db.Delete(model.Tag{}, "id in ?", ids)
+
 	if result.Error != nil {
+
 		ReturnError(c, g.ErrDbOp, result.Error)
+
 		return
+
 	}
 
 	ReturnSuccess(c, result.RowsAffected)
+
 }
 
 // @Summary 获取标签选项列表
@@ -119,10 +159,17 @@ func (*Tag) Delete(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /tag/option [get]
 func (*Tag) GetOption(c *gin.Context) {
+
 	list, err := model.GetTagOption(GetDB(c))
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
+
 	ReturnSuccess(c, list)
+
 }

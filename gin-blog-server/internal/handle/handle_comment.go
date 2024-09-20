@@ -26,19 +26,29 @@ type Comment struct{}
 // @Security ApiKeyAuth
 // @Router /comment [delete]
 func (*Comment) Delete(c *gin.Context) {
+
 	var ids []int
+
 	if err := c.ShouldBindJSON(&ids); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	result := GetDB(c).Delete(model.Comment{}, "id in ?", ids)
+
 	if result.Error != nil {
+
 		ReturnError(c, g.ErrDbOp, result.Error)
+
 		return
+
 	}
 
 	ReturnSuccess(c, result.RowsAffected)
+
 }
 
 // @Summary 修改评论审核（批量）
@@ -51,19 +61,31 @@ func (*Comment) Delete(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /comment/review [put]
 func (*Comment) UpdateReview(c *gin.Context) {
+
 	var req UpdateReviewReq
+
 	if err := c.ShouldBindJSON(&req); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
+
 	maps := map[string]any{"is_review": req.IsReview}
+
 	result := GetDB(c).Model(model.Comment{}).Where("id in ?", req.Ids).Updates(maps)
+
 	if result.Error != nil {
+
 		ReturnError(c, g.ErrDbOp, result.Error)
+
 		return
+
 	}
 
 	ReturnSuccess(c, result.RowsAffected)
+
 }
 
 // @Summary 条件查询评论列表
@@ -80,15 +102,25 @@ func (*Comment) UpdateReview(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /comment [get]
 func (*Comment) GetList(c *gin.Context) {
+
 	var query CommentQuery
+
 	if err := c.ShouldBindQuery(&query); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
+
 	list, total, err := model.GetCommentList(GetDB(c), query.Page, query.Size, query.Type, query.IsReview, query.Nickname)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, PageResult[model.Comment]{

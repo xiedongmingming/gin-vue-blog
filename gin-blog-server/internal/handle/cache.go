@@ -16,22 +16,30 @@ var rctx = context.Background()
 
 // 将页面列表缓存到 Redis 中
 func addPageCache(rdb *redis.Client, pages []model.Page) error {
+
 	data, err := json.Marshal(pages)
+
 	if err != nil {
 		return err
 	}
+
 	return rdb.Set(rctx, g.PAGE, string(data), 0).Err()
+
 }
 
 // 删除 Redis 中页面列表缓存
 func removePageCache(rdb *redis.Client) error {
+
 	return rdb.Del(rctx, g.PAGE).Err()
+
 }
 
 // 从 Redis 中获取页面列表缓存
 // rdb.Get 如果不存在 key, 会返回 redis.Nil 错误
 func getPageCache(rdb *redis.Client) (cache []model.Page, err error) {
+
 	s, err := rdb.Get(rctx, g.PAGE).Result()
+
 	if err != nil {
 		return nil, err
 	}
@@ -41,6 +49,7 @@ func getPageCache(rdb *redis.Client) (cache []model.Page, err error) {
 	}
 
 	return cache, nil
+
 }
 
 // Config

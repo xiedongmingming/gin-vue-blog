@@ -30,16 +30,25 @@ type AddOrEditLinkReq struct {
 // @Security ApiKeyAuth
 // @Router /link/list [get]
 func (*Link) GetList(c *gin.Context) {
+
 	var query PageQuery
+
 	if err := c.ShouldBindQuery(&query); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	data, total, err := model.GetLinkList(GetDB(c), query.Page, query.Size, query.Keyword)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, PageResult[model.FriendLink]{
@@ -48,6 +57,7 @@ func (*Link) GetList(c *gin.Context) {
 		Size:  query.Size,
 		Page:  query.Page,
 	})
+
 }
 
 // @Summary 添加或修改友链
@@ -60,19 +70,29 @@ func (*Link) GetList(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /link [post]
 func (*Link) SaveOrUpdate(c *gin.Context) {
+
 	var req AddOrEditLinkReq
+
 	if err := c.ShouldBindJSON(&req); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	link, err := model.SaveOrUpdateLink(GetDB(c), req.ID, req.Name, req.Avatar, req.Address, req.Intro)
+
 	if err != nil {
+
 		ReturnError(c, g.ErrDbOp, err)
+
 		return
+
 	}
 
 	ReturnSuccess(c, link)
+
 }
 
 // @Summary 删除友链（批量）
@@ -85,17 +105,27 @@ func (*Link) SaveOrUpdate(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /link [delete]
 func (*Link) Delete(c *gin.Context) {
+
 	var ids []int
+
 	if err := c.ShouldBindJSON(&ids); err != nil {
+
 		ReturnError(c, g.ErrRequest, err)
+
 		return
+
 	}
 
 	result := GetDB(c).Delete(&model.FriendLink{}, "id in ?", ids)
+
 	if result.Error != nil {
+
 		ReturnError(c, g.ErrDbOp, result.Error)
+
 		return
+
 	}
 
 	ReturnSuccess(c, result.RowsAffected)
+
 }
