@@ -5,24 +5,33 @@ import { resetRouter, router } from '@/router'
 import api from '@/api'
 
 export const useAuthStore = defineStore('auth', {
+
   persist: {
     key: 'gvb_admin_auth',
     paths: ['token'],
   },
+
   state: () => ({
     token: null,
   }),
+
   actions: {
+
     setToken(token) {
       this.token = token
     },
+
     toLogin() {
+
       const currentRoute = unref(router.currentRoute)
-      router.replace({
+
+      router.replace({ // 路由跳转
         path: '/login',
         query: currentRoute.query,
       })
+
     },
+
     resetLoginState() {
       useUserStore().$reset()
       usePermissionStore().$reset()
@@ -30,6 +39,7 @@ export const useAuthStore = defineStore('auth', {
       resetRouter()
       this.$reset()
     },
+
     /**
      * 主动退出登录
      */
@@ -39,6 +49,7 @@ export const useAuthStore = defineStore('auth', {
       this.toLogin()
       window.$message.success('您已经退出登录！')
     },
+
     /**
      * TODO: 被强制退出
      */
@@ -47,7 +58,9 @@ export const useAuthStore = defineStore('auth', {
       this.toLogin()
       // window.$message.error('您已经被强制下线！')
     },
+
   },
+
 })
 
 // function toLoginWithQuery() {

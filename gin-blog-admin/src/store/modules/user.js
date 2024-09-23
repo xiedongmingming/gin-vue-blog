@@ -15,23 +15,35 @@ export const useUserStore = defineStore('user', {
     },
   }),
   getters: {
+
     userId: state => state.userInfo.id,
     nickname: state => state.userInfo.nickname,
     intro: state => state.userInfo.intro,
     website: state => state.userInfo.website,
     avatar: state => convertImgUrl(state.userInfo.avatar),
     // roles: state => state.userInfo.roles,
+
   },
   actions: {
+
     async getUserInfo() {
+
       try {
+
         const resp = await api.getUserInfo()
+
         this.userInfo = resp.data
+
         return Promise.resolve(resp.data)
-      }
-      catch (err) {
+
+      } catch (err) {
+
         return Promise.reject(err)
+
       }
+
     },
+
   },
+
 })

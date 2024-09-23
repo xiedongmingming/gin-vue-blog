@@ -5,12 +5,15 @@ import Layout from '@/layout/index.vue'
 import api from '@/api'
 
 export const usePermissionStore = defineStore('permission', {
+
   persist: {
     key: 'gvb_admin_permission',
   },
+
   state: () => ({
     accessRoutes: [], // 可访问的路由
   }),
+
   getters: {
     // 最终可访问路由 = 基础路由 + 可访问的路由
     routes: state => basicRoutes.concat(state.accessRoutes),
@@ -18,21 +21,26 @@ export const usePermissionStore = defineStore('permission', {
     menus: state => state.routes.filter(route => route.name && !route.isHidden),
   },
   actions: {
+
     // ! 后端生成路由: 后端返回的就是最终路由, 处理成前端格式
     async generateRoutesBack() {
       const resp = await api.getUserMenus() // 调用接口获取后端传来的路由
       this.accessRoutes = buildRoutes(resp.data) // 处理成前端路由格式
       return this.accessRoutes
     },
+
     // ! 前端控制路由权限: 根据角色过滤路由
     generateRoutesFront(role = []) {
       this.accessRoutes = filterAsyncRoutes(asyncRoutes, role)
       return this.accessRoutes
     },
+
     resetPermission() {
       this.$reset()
     },
+
   },
+
 })
 
 // ! 前端路由相关函数

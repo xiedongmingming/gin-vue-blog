@@ -1,6 +1,7 @@
 import { request } from '@/utils'
 
 export default {
+
   // refreshToken: () => request.post('/auth/refreshToken', null, { noNeedTip: true }),
   report: () => request.post('/report'), // 上报用户信息
   getHomeInfo: () => request.get('/home'), // 获取首页信息
@@ -43,6 +44,7 @@ export default {
   getLinks: (params = {}) => request.get('/link/list', { params }),
   deleteLinks: (data = []) => request.delete('/link', { data }),
   saveOrUpdateLink: data => request.post('/link', data),
+
   // 日志相关接口
   getOperationLogs: (params = {}) => request.get('/operation/log/list', { params }),
   deleteOperationLogs: (data = []) => request.delete('/operation/log', { data }),

@@ -1,4 +1,5 @@
 import axios from 'axios'
+
 import { useAuthStore } from '@/store'
 
 export const request = axios.create(
@@ -9,22 +10,29 @@ export const request = axios.create(
 )
 
 request.interceptors.request.use(
+
   // 请求成功拦截
   (config) => {
+
     if (config.noNeedToken) {
       return config
     }
 
     const { token } = useAuthStore()
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+
     return config
+
   },
+
   // 请求失败拦截
   (error) => {
     return Promise.reject(error)
   },
+
 )
 
 request.interceptors.response.use(

@@ -1,21 +1,31 @@
-本后台项目基于这个项目骨架：[https://github.com/zclzone/vue-naive-admin](https://github.com/zclzone/vue-naive-admin), 感谢开源作者的奉献。
+本后台项目基于这个项目骨架：
+
+​	[https://github.com/zclzone/vue-naive-admin](https://github.com/zclzone/vue-naive-admin)
+
+感谢开源作者的奉献。
+
+
 
 ## 项目路由
 
-后端路由：由后端传来一个基础的菜单数组, 前端组装成可访问的路由格式
 
-前端路由: 加载前端写死的路由, 根据其 meta.requireAuth 判断是否需要鉴权, 同时由前端判断角色
 
-## 相比 Vue Naive Admin 项目的变化
+后端路由：由后端传来一个基础的菜单数组，前端组装成可访问的路由格式
+
+前端路由：加载前端写死的路由，根据其`meta.requireAuth`判断是否需要鉴权，同时由前端判断角色
+
+
+
+## 相比Vue-Naive-Admin项目的变化
 
 原则：一个问题不需要太多解决方案，所以本项目中只保留最常用的解决方案，如果实在不能解决需求，需要自行添加
 
-基于 Vue Naive Admin, 本项目在其基础上更新了很多，主要是为了精简项目, 对接后端, 大致列出如下:
+基于VUE-NAVIE-ADMIN，本项目在其基础上更新了很多，主要是为了精简项目，对接后端，大致列出如下：
 
 整体结构：
-- 去除 Mock: 因为项目有真实的后端, 无需 Mock
-- 去除 build 文件夹, 因为去除了很多插件 (unplugin 全部去除), 所以并不必须
-- 对接真实后端数据, 添加后端路由等功能
+- 去除MOCK：因为项目有真实的后端，无需MOCK
+- 去除BUILD文件夹，因为去除了很多插件（UNPLUGIN全部去除）所以并不必须
+- 对接真实后端数据，添加后端路由等功能
 
 插件相关：
 - 去除 unplugin 系列所有插件: `unplugin-auto-import`, `unplugin-icons`, `unplugin-vue-components`

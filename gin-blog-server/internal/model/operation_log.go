@@ -26,15 +26,12 @@ func GetOperationLogList(db *gorm.DB, num, size int, keyword string) (data []Ope
 	db = db.Model(&OperationLog{})
 
 	if keyword != "" {
-		db = db.Where("opt_module LIKE ?", "%"+keyword+"%").
-			Or("opt_desc LIKE ?", "%"+keyword+"%")
+		db = db.Where("opt_module LIKE ?", "%"+keyword+"%").Or("opt_desc LIKE ?", "%"+keyword+"%")
 	}
 
 	db.Count(&total)
 
-	result := db.Order("created_at DESC").
-		Scopes(Paginate(num, size)).
-		Find(&data)
+	result := db.Order("created_at DESC").Scopes(Paginate(num, size)).Find(&data)
 
 	return data, total, result.Error
 

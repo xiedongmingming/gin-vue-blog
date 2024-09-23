@@ -20,18 +20,27 @@ export function setLocal(key, value, expire = 60 * 60 * 24 * 7) {
  * @param {string} key
  */
 export function getLocal(key) {
+
   const encryptedVal = window.localStorage.getItem(key)
+
   if (encryptedVal) {
+
     const val = decrypto(encryptedVal) // 解密
+
     const { value, expire } = JSON.parse(val)
+
     // 未过期则返回
     if (!expire || expire > new Date().getTime()) {
       return value
     }
+
   }
+
   // 过期则移除
   removeLocal(key)
+
   return null
+
 }
 
 export function removeLocal(key) {
@@ -53,17 +62,23 @@ function encrypto(data) {
 }
 
 /**
- * 解密数据: Base64 解密
+ * 解密数据: BASE64解密
  * @param {string} cipherText - 密文
  */
 function decrypto(cipherText) {
+
   const decryptedData = atob(cipherText)
+
   const originalText = decryptedData.replace(CryptoSecret, '')
+
   try {
+
     const parsedData = JSON.parse(originalText)
+
     return parsedData
-  }
-  catch (error) {
+
+  } catch (error) {
     return null
   }
+
 }

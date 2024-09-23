@@ -15,6 +15,7 @@ export const basicRoutes = [
     name: 'Login',
     path: '/login',
     component: () => import('@/views/Login.vue'),
+    // redirect: '/home', // 默认跳转首页
     isHidden: true,
     meta: {
       title: '登录页',

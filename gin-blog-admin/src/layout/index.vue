@@ -1,4 +1,5 @@
 <script setup>
+
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { NLayout, NLayoutSider } from 'naive-ui'
@@ -23,7 +24,9 @@ const keepAliveRouteNames = computed(() => {
 </script>
 
 <template>
+
   <NLayout has-sider class="h-full w-full">
+
     <!-- 左侧边栏 -->
     <NLayoutSider
       bordered
@@ -35,8 +38,10 @@ const keepAliveRouteNames = computed(() => {
     >
       <Sidebar />
     </NLayoutSider>
+
     <!-- 右半部分 -->
     <article class="flex flex-1 flex-col overflow-hidden">
+
       <!-- 头部 -->
       <header
         class="flex items-center border-b-1 border-gray-200 border-b-solid px-4"
@@ -44,10 +49,12 @@ const keepAliveRouteNames = computed(() => {
       >
         <AppHeader />
       </header>
+
       <!-- 标签栏 -->
       <section v-if="themes.tags.visible" class="border-b border-gray-200 border-b-solid">
         <AppTags :style="{ height: `${themes.tags.height}px` }" />
       </section>
+
       <!-- 主体内容 -->
       <section class="flex-1 overflow-hidden">
         <RouterView v-slot="{ Component, route }">
@@ -59,7 +66,11 @@ const keepAliveRouteNames = computed(() => {
             />
           </keepalive>
         </RouterView>
+
       </section>
+
     </article>
+
   </NLayout>
+
 </template>

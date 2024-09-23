@@ -1,23 +1,31 @@
 <script setup>
+
 import { NBackTop } from 'naive-ui'
+
 import TheFooter from '@/components/common/TheFooter.vue'
 
 defineProps({
   showFooter: { type: Boolean, default: false },
 })
+
 </script>
 
 <template>
+
   <Transition name="fade-slide" mode="out-in" appear>
+
     <section class="cus-scroll-y h-full w-full flex flex-col bg-[#f5f6fb] p-4 dark:bg-[#121212]">
       <slot />
       <TheFooter v-if="showFooter" class="mt-5" />
       <NBackTop :bottom="20" />
     </section>
+
   </Transition>
+
 </template>
 
 <style lang="scss">
+
 /* transition fade-slide */
 .fade-slide-leave-active,
 .fade-slide-enter-active {
@@ -42,6 +50,7 @@ defineProps({
     height: 8px;
   }
 }
+
 .cus-scroll-x {
   overflow-x: auto;
   &::-webkit-scrollbar {
@@ -49,6 +58,7 @@ defineProps({
     height: 8px;
   }
 }
+
 .cus-scroll-y {
   overflow-y: auto;
   &::-webkit-scrollbar {
@@ -56,6 +66,7 @@ defineProps({
     height: 0;
   }
 }
+
 .cus-scroll,
 .cus-scroll-x,
 .cus-scroll-y {
